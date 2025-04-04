@@ -9,8 +9,9 @@ type Config struct {
 	props map[string]string
 }
 
-func (c *Config) Get(key string) string {
-	return c.props[key]
+func (c *Config) Get(key string) (string, bool) {
+	value, ok := c.props[key]
+	return value, ok
 }
 
 func ReadConfig(filePath string) (*Config, error) {
