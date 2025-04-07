@@ -60,10 +60,10 @@ func NewGameBtn() tg.InlineKeyboardMarkup {
 func ShowRolesBtn(round Round) tg.InlineKeyboardMarkup {
 	keyboard := tg.NewInlineKeyboardMarkup()
 	var rows [][]tg.InlineKeyboardButton
-	for i := 1; i <= round.Members; i++ {
+	for i := 0; i < round.Members; i++ {
 		if !contains(round.Roles, i) {
 			btn := tg.NewInlineKeyboardButtonData(
-				fmt.Sprintf("Игрок №%d", i),
+				fmt.Sprintf("Игрок №%d", i+1),
 				fmt.Sprintf("role_%d", i),
 			)
 			rows = append(rows, []tg.InlineKeyboardButton{btn})

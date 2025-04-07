@@ -11,7 +11,7 @@ import (
 
 func main() {
 	path := "application.properties"
-	if len(os.Args) > 0 {
+	if len(os.Args) > 2 {
 		path = os.Args[1]
 	}
 	config, err := service.ReadConfig(path)

@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"math/rand"
 )
 
 type Round struct {
@@ -9,6 +10,7 @@ type Round struct {
 	Place   Place
 	Members int
 	Roles   []int
+	seed    *rand.Rand
 }
 
 func (r Round) Equal(other Round) bool {

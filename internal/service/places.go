@@ -1,7 +1,5 @@
 package service
 
-import "math/rand"
-
 type Place struct {
 	name string
 }
@@ -37,6 +35,6 @@ func NewPlaces() *Places {
 	}
 }
 
-func (p *Places) Rnd() Place {
-	return p.places[rand.Intn(len(p.places))]
+func (p *Places) Get(inx int) Place {
+	return p.places[inx]
 }

@@ -29,11 +29,13 @@ func ChooseMembers(bot *tg.BotAPI, update tg.Update, store *Store, places *Place
 		log.Fatal(err)
 	}
 	members := int(mems)
+	seed := rand.New(rand.NewSource(chatID))
 	round := Round{
-		SpyID:   rand.Intn(members),
-		Place:   places.Rnd(),
+		SpyID:   seed.Intn(members),
+		Place:   places.Get(seed.Intn(len(places.places))),
 		Members: members,
 		Roles:   []int{},
+		seed:    seed,
 	}
 	store.Set(chatID, round)
 	deleteMsg := tg.NewDeleteMessage(chatID, messageID)
@@ -143,7 +145,7 @@ func StopGame(bot *tg.BotAPI, update tg.Update, store *Store) {
 	roleMsg := tg.NewMessage(
 		chatID,
 		fmt.Sprintf("Игра завершина. Шпион: Игрок №%d, место: %s",
-			round.SpyID, round.Place.name),
+			round.SpyID+1, round.Place.name),
 	)
 	roleMsg.ReplyMarkup = NewGameBtn()
 	_, errRole := bot.Send(roleMsg)
@@ -157,7 +159,6 @@ func NewGame(bot *tg.BotAPI, update tg.Update, store *Store, places *Places) {
 	callback := update.CallbackQuery
 	if callback == nil {
 		chatID = update.Message.Chat.ID
-
 	}
 	if callback != nil {
 		chatID = update.CallbackQuery.Message.Chat.ID
@@ -172,10 +173,11 @@ func NewGame(bot *tg.BotAPI, update tg.Update, store *Store, places *Places) {
 		return
 	}
 	newRound := Round{
-		SpyID:   rand.Intn(round.Members),
-		Place:   places.Rnd(),
+		SpyID:   round.seed.Intn(round.Members),
+		Place:   places.Get(round.seed.Intn(len(places.places))),
 		Members: round.Members,
 		Roles:   []int{},
+		seed:    round.seed,
 	}
 	store.Set(chatID, newRound)
 	roleMsg := tg.NewMessage(chatID, "Игра началась. Разберите роли:")
