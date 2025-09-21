@@ -15,7 +15,7 @@ func SizeMembers(bot *tg.BotAPI, update tg.Update) {
 	roleMsg.ReplyMarkup = ChooseMembersBtn()
 	_, errRole := bot.Send(roleMsg)
 	if errRole != nil {
-		log.Fatal(errRole)
+		log.Printf("service.SizeMembers - can't show role: %v", errRole)
 	}
 }
 
@@ -26,7 +26,7 @@ func ChooseMembers(bot *tg.BotAPI, update tg.Update, store *Store, places *Place
 	size, _ := strings.CutPrefix(data, "set_")
 	mems, err := strconv.ParseInt(size, 10, 64)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("service.ChooseMembers - can't parse: %v", err)
 	}
 	members := int(mems)
 	seed := rand.New(rand.NewSource(chatID))
@@ -41,14 +41,14 @@ func ChooseMembers(bot *tg.BotAPI, update tg.Update, store *Store, places *Place
 	deleteMsg := tg.NewDeleteMessage(chatID, messageID)
 	_, errDlt := bot.Send(deleteMsg)
 	if errDlt != nil {
-		log.Fatal(errDlt)
+		log.Printf("service.ChooseMembers - can't delete: %v", errDlt)
 	}
 
 	roleMsg := tg.NewMessage(chatID, "Игра началась. Разберите роли:")
 	roleMsg.ReplyMarkup = ShowRolesBtn(round)
 	_, errRole := bot.Send(roleMsg)
 	if errRole != nil {
-		log.Fatal(errRole)
+		log.Printf("service.ChooseMembers - can't show role: %v", errRole)
 	}
 }
 
@@ -58,13 +58,13 @@ func ShowRoles(bot *tg.BotAPI, update tg.Update, store *Store) {
 	deleteMsg := tg.NewDeleteMessage(chatID, messageID)
 	_, errDlt := bot.Send(deleteMsg)
 	if errDlt != nil {
-		log.Fatal(errDlt)
+		log.Printf("service.SizeMembers - can't show role: %v", errDlt)
 	}
 	data := update.CallbackQuery.Data
 	size, _ := strings.CutPrefix(data, "role_")
 	roles, err := strconv.ParseInt(size, 10, 64)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("service.ShowRoles - can't parse: %v", err)
 	}
 	roleID := int(roles)
 	round, ok := store.Get(chatID)
@@ -72,7 +72,7 @@ func ShowRoles(bot *tg.BotAPI, update tg.Update, store *Store) {
 		roundMsg := tg.NewMessage(chatID, "Упс.. Раунт не найден. Начните заново")
 		_, errRole := bot.Send(roundMsg)
 		if errRole != nil {
-			log.Fatal(errRole)
+			log.Printf("service.SizeMembers - can't show round: %v", errRole)
 		}
 		return
 	}
@@ -86,7 +86,7 @@ func ShowRoles(bot *tg.BotAPI, update tg.Update, store *Store) {
 	placeMsg.ReplyMarkup = HideBtn()
 	_, errPlace := bot.Send(placeMsg)
 	if errPlace != nil {
-		log.Fatal(errPlace)
+		log.Printf("service.SizeMembers - can't show pl: %v", errPlace)
 	}
 }
 
@@ -96,14 +96,14 @@ func HideMessage(bot *tg.BotAPI, update tg.Update, store *Store) {
 	deleteMsg := tg.NewDeleteMessage(chatID, messageID)
 	_, errDlt := bot.Send(deleteMsg)
 	if errDlt != nil {
-		log.Fatal(errDlt)
+		log.Printf("service.HideMessage - can't delete role: %v", errDlt)
 	}
 	round, ok := store.Get(chatID)
 	if !ok {
 		roundMsg := tg.NewMessage(chatID, "Упс.. Раунт не найден. Начните заново")
 		_, errRole := bot.Send(roundMsg)
 		if errRole != nil {
-			log.Fatal(errRole)
+			log.Printf("service.HideMessage - can't show round: %v", errRole)
 		}
 		return
 	}
@@ -112,7 +112,7 @@ func HideMessage(bot *tg.BotAPI, update tg.Update, store *Store) {
 		roleMsg.ReplyMarkup = ShowRolesBtn(round)
 		_, errRole := bot.Send(roleMsg)
 		if errRole != nil {
-			log.Fatal(errRole)
+			log.Printf("can't show game over: %v", errRole)
 		}
 	}
 	if len(round.Roles) == round.Members {
@@ -120,7 +120,7 @@ func HideMessage(bot *tg.BotAPI, update tg.Update, store *Store) {
 		roleMsg.ReplyMarkup = StopGameBtn()
 		_, errRole := bot.Send(roleMsg)
 		if errRole != nil {
-			log.Fatal(errRole)
+			log.Printf("service.SizeMembers - can't start: %v", errRole)
 		}
 	}
 }
@@ -131,14 +131,14 @@ func StopGame(bot *tg.BotAPI, update tg.Update, store *Store) {
 	deleteMsg := tg.NewDeleteMessage(chatID, messageID)
 	_, errDlt := bot.Send(deleteMsg)
 	if errDlt != nil {
-		log.Fatal(errDlt)
+		log.Printf("service.StopGame - stop: %v", errDlt)
 	}
 	round, ok := store.Get(chatID)
 	if !ok {
 		roundMsg := tg.NewMessage(chatID, "Упс.. Раунт не найден. Начните заново")
 		_, errRole := bot.Send(roundMsg)
 		if errRole != nil {
-			log.Fatal(errRole)
+			log.Printf("service.StopGame - can't round: %v", errRole)
 		}
 		return
 	}
@@ -150,7 +150,7 @@ func StopGame(bot *tg.BotAPI, update tg.Update, store *Store) {
 	roleMsg.ReplyMarkup = NewGameBtn()
 	_, errRole := bot.Send(roleMsg)
 	if errRole != nil {
-		log.Fatalf("StopGame. Error: %s", errRole)
+		log.Printf("service.StopGame. Error: %v", errRole)
 	}
 }
 
@@ -168,7 +168,7 @@ func NewGame(bot *tg.BotAPI, update tg.Update, store *Store, places *Places) {
 		membersMsg := tg.NewMessage(chatID, "Вначале задайте количество игроков")
 		_, errRole := bot.Send(membersMsg)
 		if errRole != nil {
-			log.Fatal(errRole)
+			log.Printf("service.NewGame - can't show role: %v", errRole)
 		}
 		return
 	}
@@ -184,7 +184,7 @@ func NewGame(bot *tg.BotAPI, update tg.Update, store *Store, places *Places) {
 	roleMsg.ReplyMarkup = ShowRolesBtn(newRound)
 	_, errRole := bot.Send(roleMsg)
 	if errRole != nil {
-		log.Fatal(errRole)
+		log.Printf("service.NewGame - can't show role: %v", errRole)
 	}
 }
 
@@ -217,6 +217,6 @@ func Start(bot *tg.BotAPI, update tg.Update) {
 	msg.ReplyMarkup = keyboard
 	_, err := bot.Send(msg)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("service.Start - can't show role: %v", err)
 	}
 }
